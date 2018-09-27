@@ -2,6 +2,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -17,13 +22,35 @@ class UDPServer {
 
 	private DatagramPacket receivedPacket;
 
-	public UDPServer() throws SocketException {
+	private ArrayList<String> bookList;
+
+	public UDPServer() throws SocketException, IOException {
 
 		receivedData = new byte[1024];
 
 		serverSocket = new DatagramSocket(9876);
 
+		bookList = getBooks();
+
 		LOGGER.info("Initialized server");
+	}
+
+	private ArrayList<String> getBooks() throws IOException {
+
+		ArrayList<String> list = new ArrayList<>();
+
+		try (Stream<String> stream = Files.lines(Paths.get("bookList.txt"))) {
+			stream.forEach(b -> list.add(b));
+		}
+
+		return list;
+	}
+
+	private String getRandomBook() {
+		
+		Random rand = new Random();
+
+		return bookList.get(rand.nextInt(bookList.size()));
 	}
 
 	public void listen() throws IOException {

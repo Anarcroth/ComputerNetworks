@@ -5,7 +5,7 @@ public class ConnectServer {
 		UDPServer bookServer = new UDPServer();
 
 		bookServer.listen();
-		
+
 		bookServer.send();
 	}
 }
