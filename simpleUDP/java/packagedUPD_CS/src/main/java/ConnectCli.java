@@ -1,5 +1,5 @@
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 import org.apache.log4j.Logger;
 
@@ -11,21 +11,10 @@ public class ConnectCli {
 
 		UDPClient client = new UDPClient();
 
-//		client.send();
+		String clientInput = new BufferedReader(new InputStreamReader(System.in)).readLine();
 
-		DatagramSocket clientSocket = new DatagramSocket();
+		client.send(clientInput);
 
-		DatagramPacket sendPacket =
-				new DatagramPacket(client.getSendData(), client.getSendData().length, client.getIpAddress(), 9876);
-		clientSocket.send(sendPacket);
-
-		DatagramPacket receivePacket = new DatagramPacket(client.getReceiveData(), client.getReceiveData().length);
-		clientSocket.receive(receivePacket);
-
-		String modifiedSentence = new String(receivePacket.getData());
-
-		LOGGER.info("FROM SERVER:" + modifiedSentence);
-
-		clientSocket.close();
+		LOGGER.info("Answer from server:" + client.receive());
 	}
 }

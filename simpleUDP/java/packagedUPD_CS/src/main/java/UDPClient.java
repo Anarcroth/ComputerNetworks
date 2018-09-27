@@ -1,6 +1,6 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -10,36 +10,34 @@ class UDPClient {
 
 	private static final Logger LOGGER = Logger.getLogger(UDPClient.class);
 
-	private byte[] sendData;
-
 	private byte[] receiveData;
 
 	private InetAddress ipAddress;
 
+	private DatagramSocket clientSocket;
+
 	public UDPClient() throws UnknownHostException, IOException {
 
-		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-
-		sendData = inFromUser.readLine().getBytes();
 		receiveData = new byte[1024];
-
+		clientSocket = new DatagramSocket();
 		ipAddress = InetAddress.getByName("localhost");
 
 		LOGGER.info("Initialized client");
 	}
 
-	public byte[] getSendData() {
+	public void send(String message) throws IOException {
 
-		return sendData;
+		DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), ipAddress, 9876);
+		clientSocket.send(sendPacket);
 	}
 
-	public byte[] getReceiveData() {
+	public String receive() throws IOException {
 
-		return receiveData;
-	}
+		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+		clientSocket.receive(receivePacket);
 
-	public InetAddress getIpAddress() {
+		clientSocket.close();
 
-		return ipAddress;
+		return new String(receivePacket.getData());
 	}
 }
