@@ -10,9 +10,9 @@ import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
-class UDPServer {
+class BookServer {
 
-	public static final Logger LOGGER = Logger.getLogger(UDPServer.class);
+	public static final Logger LOGGER = Logger.getLogger(BookServer.class);
 
 	private String data;
 
@@ -24,7 +24,7 @@ class UDPServer {
 
 	private ArrayList<String> bookList;
 
-	public UDPServer() throws SocketException, IOException {
+	public BookServer() throws SocketException, IOException {
 
 		receivedData = new byte[1024];
 
@@ -55,17 +55,14 @@ class UDPServer {
 
 	public void listen() throws IOException {
 
-		LOGGER.info("Listening on " + 9876);
+		LOGGER.info("Listening on port " + 9876);
 
-		while (true) {
+		DatagramPacket receivePacket = new DatagramPacket(receivedData, receivedData.length);
+		serverSocket.receive(receivePacket);
+		data = new String(receivePacket.getData());
+		receivedPacket = receivePacket;
 
-			DatagramPacket receivePacket = new DatagramPacket(receivedData, receivedData.length);
-			serverSocket.receive(receivePacket);
-			data = new String(receivePacket.getData());
-			receivedPacket = receivePacket;
-
-			LOGGER.info("Received: " + data);
-		}
+		LOGGER.info("Received: " + data);
 	}
 
 	public void send() throws IOException {

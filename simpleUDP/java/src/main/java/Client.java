@@ -6,9 +6,9 @@ import java.net.UnknownHostException;
 
 import org.apache.log4j.Logger;
 
-class UDPClient {
+class Client {
 
-	private static final Logger LOGGER = Logger.getLogger(UDPClient.class);
+	private static final Logger LOGGER = Logger.getLogger(Client.class);
 
 	private byte[] receiveData;
 
@@ -16,7 +16,7 @@ class UDPClient {
 
 	private DatagramSocket clientSocket;
 
-	public UDPClient() throws UnknownHostException, IOException {
+	public Client() throws UnknownHostException, IOException {
 
 		receiveData = new byte[1024];
 		clientSocket = new DatagramSocket();

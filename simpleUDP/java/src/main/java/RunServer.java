@@ -1,8 +1,8 @@
-public class ConnectServer {
+public class RunServer {
 
 	public static void main(String args[]) throws Exception {
 
-		UDPServer bookServer = new UDPServer();
+		BookServer bookServer = new BookServer();
 
 		bookServer.listen();
 
