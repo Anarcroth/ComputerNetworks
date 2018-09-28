@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -39,7 +40,8 @@ class BookServer {
 
 		ArrayList<String> list = new ArrayList<>();
 
-		try (Stream<String> stream = Files.lines(Paths.get("bookList.txt"))) {
+		File file = new File("bookList.txt");
+		try (Stream<String> stream = Files.lines(Paths.get(file.getPath()))) {
 			stream.forEach(b -> list.add(b));
 		}
 
