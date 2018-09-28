@@ -47,7 +47,7 @@ class UDPServer {
 	}
 
 	private String getRandomBook() {
-		
+
 		Random rand = new Random();
 
 		return bookList.get(rand.nextInt(bookList.size()));
