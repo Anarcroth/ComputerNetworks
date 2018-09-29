@@ -36,7 +36,7 @@ class Client {
 		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 		clientSocket.receive(receivePacket);
 
-		return new String(receivePacket.getData());
+		return new String(receivePacket.getData()).trim();
 	}
 
 	public void showHelp() {

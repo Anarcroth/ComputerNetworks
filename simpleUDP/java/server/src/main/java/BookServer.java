@@ -61,7 +61,7 @@ class BookServer {
 
 		receivedPacket = new DatagramPacket(receivedData, receivedData.length);
 		serverSocket.receive(receivedPacket);
-		String data = new String(receivedPacket.getData());
+		String data = new String(receivedPacket.getData()).trim();
 
 		LOGGER.info("Received: " + data);
 
@@ -70,17 +70,17 @@ class BookServer {
 
 	private void parseReceivedMessage(String message) throws IOException {
 
-		if (message.startsWith("GET")) {
+		if (message.equals("GET")) {
 
 			send();
-		} else if (message.equals("ADD")) {
+		} else if (message.startsWith("ADD")) {
 
 		}
 	}
 
 	public void send() throws IOException {
 
-		String randomBook = "OK\n" + getRandomBook();
+		String randomBook = "\nOK\n" + getRandomBook();
 
 		serverSocket.send(new DatagramPacket(
 				randomBook.getBytes(),

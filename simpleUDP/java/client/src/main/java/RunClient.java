@@ -13,7 +13,7 @@ public class RunClient {
 
 	public static boolean quit;
 
-	public static void main(String args[]) throws Exception {
+	public static void main(String[] args) throws Exception {
 
 		client = new Client();
 
@@ -24,7 +24,7 @@ public class RunClient {
 
 			LOGGER.info("Input: ");
 			Scanner in = new Scanner(System.in);
-			String input = in.nextLine();// new BufferedReader(new InputStreamReader(System.in)).readLine();
+			String input = in.nextLine();
 
 			try {
 				parse(input);
