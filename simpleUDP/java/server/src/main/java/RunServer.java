@@ -4,9 +4,10 @@ public class RunServer {
 
 		BookServer bookServer = new BookServer();
 
-		bookServer.listen();
+		while (true) {
 
-		bookServer.send();
+			bookServer.listen();
+		}
 	}
 }
 

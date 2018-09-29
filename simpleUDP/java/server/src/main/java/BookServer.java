@@ -3,12 +3,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 class BookServer {
@@ -58,10 +59,9 @@ class BookServer {
 
 		LOGGER.info("Listening on port " + 9876);
 
-		DatagramPacket receivePacket = new DatagramPacket(receivedData, receivedData.length);
-		serverSocket.receive(receivePacket);
-		String data = new String(receivePacket.getData());
-		receivedPacket = receivePacket;
+		receivedPacket = new DatagramPacket(receivedData, receivedData.length);
+		serverSocket.receive(receivedPacket);
+		String data = new String(receivedPacket.getData());
 
 		LOGGER.info("Received: " + data);
 
@@ -70,17 +70,21 @@ class BookServer {
 
 	private void parseReceivedMessage(String message) throws IOException {
 
-		if (message.equals("GET")) {
+		if (message.startsWith("GET")) {
 
-			send(message);
+			send();
+		} else if (message.equals("ADD")) {
+
 		}
 	}
 
-	public void send(String data) throws IOException {
+	public void send() throws IOException {
+
+		String randomBook = "OK\n" + getRandomBook();
 
 		serverSocket.send(new DatagramPacket(
-				data.toUpperCase().getBytes(),
-				data.length(),
+				randomBook.getBytes(),
+				randomBook.length(),
 				receivedPacket.getAddress(),
 				receivedPacket.getPort()));
 	}

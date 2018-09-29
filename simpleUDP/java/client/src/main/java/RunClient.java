@@ -23,7 +23,8 @@ public class RunClient {
 		while (!quit) {
 
 			LOGGER.info("Input: ");
-			String input = new BufferedReader(new InputStreamReader(System.in)).readLine();
+			Scanner in = new Scanner(System.in);
+			String input = in.nextLine();// new BufferedReader(new InputStreamReader(System.in)).readLine();
 
 			try {
 				parse(input);
