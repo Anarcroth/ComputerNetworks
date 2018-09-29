@@ -36,8 +36,21 @@ class Client {
 		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 		clientSocket.receive(receivePacket);
 
-		clientSocket.close();
-
 		return new String(receivePacket.getData());
+	}
+
+	public void showHelp() {
+
+		LOGGER.info("The client is capable of the following commands:");
+		LOGGER.info("ADD - Add one or more books to the books server.");
+		LOGGER.info("GET - Get a random book title from the books server.");
+		LOGGER.info("?/help - Print help.");
+	}
+
+	public void quit() {
+
+		LOGGER.info("Closing the connection. . .");
+
+		clientSocket.close();
 	}
 }
