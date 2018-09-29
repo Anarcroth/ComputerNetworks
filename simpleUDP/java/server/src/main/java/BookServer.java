@@ -15,8 +15,6 @@ class BookServer {
 
 	public static final Logger LOGGER = Logger.getLogger(BookServer.class);
 
-	private String data;
-
 	private byte[] receivedData;
 
 	private DatagramSocket serverSocket;
@@ -62,13 +60,23 @@ class BookServer {
 
 		DatagramPacket receivePacket = new DatagramPacket(receivedData, receivedData.length);
 		serverSocket.receive(receivePacket);
-		data = new String(receivePacket.getData());
+		String data = new String(receivePacket.getData());
 		receivedPacket = receivePacket;
 
 		LOGGER.info("Received: " + data);
+
+		parseReceivedMessage(data);
 	}
 
-	public void send() throws IOException {
+	private void parseReceivedMessage(String message) throws IOException {
+
+		if (message.equals("GET")) {
+
+			send(message);
+		}
+	}
+
+	public void send(String data) throws IOException {
 
 		serverSocket.send(new DatagramPacket(
 				data.toUpperCase().getBytes(),
