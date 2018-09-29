@@ -40,8 +40,9 @@ class BookServer {
 
 		ArrayList<String> list = new ArrayList<>();
 
-		File file = new File("bookList.txt");
-		try (Stream<String> stream = Files.lines(Paths.get(file.getPath()))) {
+		File file = new File("/home/anarcroth/git-anarcroth/ComputerNetworksCourse/simpleUDP/java/server/bookList.txt");
+
+		try (Stream<String> stream = Files.lines(file.toPath())) {
 			stream.forEach(b -> list.add(b));
 		}
 
