@@ -22,6 +22,8 @@ class BookServer {
 
 	private DatagramPacket receivedPacket;
 
+	private ArrayList<String> users;
+
 	private ArrayList<String> bookList;
 
 	public BookServer() throws SocketException, IOException {
@@ -30,17 +32,19 @@ class BookServer {
 
 		serverSocket = new DatagramSocket(9876);
 
-		bookList = getBooks();
+		users = get("/home/anarcroth/git-anarcroth/ComputerNetworksCourse/simpleUDP/java/server/usersList.txt");
+
+		bookList = get("/home/anarcroth/git-anarcroth/ComputerNetworksCourse/simpleUDP/java/server/bookList.txt");
 
 		LOGGER.info("Initialized server");
 	}
 
-	private ArrayList<String> getBooks() throws IOException {
+	private ArrayList<String> get(String entity) throws IOException {
 
 		ArrayList<String> list = new ArrayList<>();
 
-		File file = new File("/home/anarcroth/git-anarcroth/ComputerNetworksCourse/simpleUDP/java/server/bookList.txt");
-
+		File file = new File(entity);
+		
 		try (Stream<String> stream = Files.lines(file.toPath())) {
 			stream.forEach(b -> list.add(b));
 		}
