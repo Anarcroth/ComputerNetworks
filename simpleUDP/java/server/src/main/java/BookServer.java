@@ -3,13 +3,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 class BookServer {
@@ -17,6 +15,8 @@ class BookServer {
 	public static final Logger LOGGER = Logger.getLogger(BookServer.class);
 
 	private byte[] receivedData;
+
+	private String receievedCommand;
 
 	private DatagramSocket serverSocket;
 
@@ -44,7 +44,7 @@ class BookServer {
 		ArrayList<String> list = new ArrayList<>();
 
 		File file = new File(entity);
-		
+
 		try (Stream<String> stream = Files.lines(file.toPath())) {
 			stream.forEach(b -> list.add(b));
 		}
@@ -65,30 +65,42 @@ class BookServer {
 
 		receivedPacket = new DatagramPacket(receivedData, receivedData.length);
 		serverSocket.receive(receivedPacket);
-		String data = new String(receivedPacket.getData()).trim();
+		receievedCommand = new String(receivedPacket.getData()).trim();
 
-		LOGGER.info("Received: " + data);
-
-		parseReceivedMessage(data);
+		LOGGER.info("Received: " + receievedCommand);
 	}
 
-	private void parseReceivedMessage(String message) throws IOException {
+	public void parseReceivedMessage() {
 
-		if (message.equals("GET")) {
+		try {
+			if (receievedCommand.equals("GET")) {
 
-			send();
-		} else if (message.startsWith("ADD")) {
+				send("OK\n" + getRandomBook());
+			} else if (receievedCommand.startsWith("ADD")) {
 
+				validateUser(receievedCommand);
+			}
+		} catch (IOException ioe) {
+
+			LOGGER.error("Could not parse receive message", ioe);
 		}
 	}
 
-	public void send() throws IOException {
+	private void validateUser(String message) throws IOException {
 
-		String randomBook = "\nOK\n" + getRandomBook();
+		LOGGER.info(message.substring(4));
+		if (users.contains(message.substring(4))) {
+
+			LOGGER.info("ITS OK");
+			send("OK");
+		}
+	}
+
+	private void send(String message) throws IOException {
 
 		serverSocket.send(new DatagramPacket(
-				randomBook.getBytes(),
-				randomBook.length(),
+				message.getBytes(),
+				message.length(),
 				receivedPacket.getAddress(),
 				receivedPacket.getPort()));
 	}

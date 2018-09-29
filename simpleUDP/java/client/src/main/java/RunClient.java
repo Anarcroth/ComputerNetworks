@@ -18,12 +18,11 @@ public class RunClient {
 		client = new Client();
 
 		LOGGER.info("Type '?' or 'help' for help");
-
+		Scanner in = new Scanner(System.in);
 		quit = false;
 		while (!quit) {
 
 			LOGGER.info("Input: ");
-			Scanner in = new Scanner(System.in);
 			String input = in.nextLine();
 
 			try {
@@ -47,7 +46,7 @@ public class RunClient {
 			LOGGER.info(client.receive());
 		} else if (input.startsWith("ADD")) {
 
-
+			client.send(input);
 		} else if (input.startsWith("quit")) {
 
 			client.quit();
