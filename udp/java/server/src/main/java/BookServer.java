@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +56,7 @@ class BookServer {
 
 		File file = new File(entity);
 
-		try (Stream<String> stream = Files.lines(file.toPath())) {
+		try (Stream<String> stream = Files.lines(Paths.get(file.getAbsolutePath()))) {
 			stream.forEach(b -> list.add(b));
 		}
 
