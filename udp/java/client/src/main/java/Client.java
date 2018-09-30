@@ -64,25 +64,40 @@ class Client {
 
 		if (receivedData.equals("OK")) {
 
-			Scanner input = new Scanner(System.in);
-			ArrayList<String> lines = new ArrayList<String>();
-			String lineNew;
+			send(getUserBooks());
 
-			while (input.hasNextLine()) {
-				lineNew = input.nextLine();
-				if (lineNew.isEmpty()) {
-					break;
-				}
-				lines.add(lineNew);
-			}
-
-			send(String.join(",", lines));
 			receive();
 
 		} else if (receivedData.equals("NOTOK")) {
 
-			LOGGER.info("This cilent is not part of the users who can access the book server.");
+			LOGGER.info("This client is not part of the users who can access the book server.");
 			quit();
+		} else if (receivedData.equals("ERR")) {
+
+			LOGGER.info("There has been an error somewhere.");
+		} else {
+
+			LOGGER.info("Unrecognized return code.");
 		}
+	}
+
+	private String getUserBooks() {
+
+		Scanner input = new Scanner(System.in);
+		ArrayList<String> lines = new ArrayList<>();
+		String lineNew;
+
+		while (input.hasNextLine()) {
+
+			lineNew = input.nextLine();
+
+			if (lineNew.isEmpty()) {
+				break;
+			}
+
+			lines.add(lineNew);
+		}
+
+		return String.join(",", lines);
 	}
 }

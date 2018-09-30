@@ -46,15 +46,15 @@ public class RunClient {
 
 			in.close();
 			client.quit();
-		} else if (input.equals("GET")) {
-
-			client.send(input);
-			client.receive();
 		} else if (input.startsWith("ADD")) {
 
 			client.send(input);
 			client.receive();
 			client.parseResponse();
+		} else {
+
+			client.send(input);
+			client.receive();
 		}
 	}
 }

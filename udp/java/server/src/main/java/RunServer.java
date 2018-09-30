@@ -7,6 +7,7 @@ public class RunServer {
 		while (true) {
 
 			bookServer.listen();
+			bookServer.parseReceivedMessage();
 		}
 	}
 }

@@ -19,6 +19,12 @@ class BookServer {
 
 	public static final Logger LOGGER = Logger.getLogger(BookServer.class);
 
+	private static final String USERS_LIST =
+			"/home/anarcroth/git-anarcroth/ComputerNetworksCourse/udp/java/server/usersList.txt";
+
+	private static final String BOOKS_LIST =
+			"/home/anarcroth/git-anarcroth/ComputerNetworksCourse/udp/java/server/bookList.txt";
+
 	private byte[] receivedData;
 
 	private DatagramSocket serverSocket;
@@ -29,17 +35,20 @@ class BookServer {
 
 	private ArrayList<String> bookList;
 
+	private String clientData;
+
 	public BookServer() throws SocketException, IOException {
 
 		receivedData = new byte[1024];
 
 		serverSocket = new DatagramSocket(9876);
 
-		users = get("/home/anarcroth/git-anarcroth/ComputerNetworksCourse/simpleUDP/java/server/usersList.txt");
+		users = get(USERS_LIST);
 
-		bookList = get("/home/anarcroth/git-anarcroth/ComputerNetworksCourse/simpleUDP/java/server/bookList.txt");
+		bookList = get(BOOKS_LIST);
 
 		LOGGER.info("Initialized server");
+		LOGGER.info("Listening on port " + 9876);
 	}
 
 	private ArrayList<String> get(String entity) throws IOException {
@@ -64,30 +73,26 @@ class BookServer {
 
 	public void listen() throws IOException {
 
-		LOGGER.info("Listening on port " + 9876);
-
 		receivedPacket = new DatagramPacket(receivedData, receivedData.length);
 		serverSocket.receive(receivedPacket);
-		String receievedCommand = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
+		clientData = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
 
-		LOGGER.info("Received: " + receievedCommand);
-
-		parseReceivedMessage(receievedCommand);
+		LOGGER.info("Received: " + clientData);
 	}
 
-	private void parseReceivedMessage(String receievedCommand) {
+	public void parseReceivedMessage() {
 
 		try {
-			if (receievedCommand.startsWith("ADD")) {
+			if (clientData.startsWith("ADD")) {
 
-				String user = receievedCommand.substring(4);
-				engageInAddingBooks(user);
-			} else if (receievedCommand.equals("GET")) {
+				String user = clientData.substring(4);
+				initAddingBooks(user);
+			} else if (clientData.equals("GET")) {
 
 				send("OK\n" + getRandomBook());
 			} else {
 
-				send(receievedCommand + " is not a recognized command.\nERR 400 Bad Request");
+				send(clientData + " is not a recognized command.\nERR Bad Request");
 			}
 		} catch (IOException ioe) {
 
@@ -95,35 +100,36 @@ class BookServer {
 		}
 	}
 
-	private void engageInAddingBooks(String user) throws IOException {
+	private void initAddingBooks(String user) throws IOException {
 
-		LOGGER.info("Engaging in adding books");
+		LOGGER.info("Init adding books");
 
-		while (true) {
-			if (isUserValid(user)) {
-				send("OK");
-				receivedPacket = new DatagramPacket(receivedData, receivedData.length);
-				serverSocket.receive(receivedPacket);
-				String receievedCommand = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
+		if (isUserValid(user)) {
 
-				LOGGER.info(receievedCommand);
+			getNewBooks();
 
-				List<String> newBooks = new ArrayList<>(Arrays.asList(receievedCommand.split(",")));
+		} else if (!isUserValid(user)) {
 
-				appendBookList(newBooks);
+			LOGGER.info("Invalid user");
+			send("NOTOK");
 
-				send("OK");
+		} else {
 
-				break;
-
-			} else {
-
-				LOGGER.info("Invalid user");
-				send("NOTOK");
-
-				break;
-			}
+			send("ERR");
 		}
+	}
+
+	private void getNewBooks() throws IOException {
+
+		send("OK");
+
+		listen();
+
+		List<String> newBooks = new ArrayList<>(Arrays.asList(clientData.split(",")));
+
+		appendBookList(newBooks);
+
+		send("OK");
 	}
 
 	private boolean isUserValid(String user) throws IOException {
@@ -144,7 +150,7 @@ class BookServer {
 	private void appendBookList(List<String> newBooks) {
 
 		try (
-				FileWriter fw = new FileWriter("/home/anarcroth/git-anarcroth/ComputerNetworksCourse/simpleUDP/java/server/bookList.txt", true);
+				FileWriter fw = new FileWriter(BOOKS_LIST, true);
 				BufferedWriter bw = new BufferedWriter(fw);
 				PrintWriter out = new PrintWriter(bw)) {
 
