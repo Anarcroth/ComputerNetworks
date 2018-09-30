@@ -19,11 +19,9 @@ class BookServer {
 
 	public static final Logger LOGGER = Logger.getLogger(BookServer.class);
 
-	private static final String USERS_LIST =
-			"/home/anarcroth/git-anarcroth/ComputerNetworksCourse/udp/java/server/usersList.txt";
+	private static final String USERS_LIST = "usersList.txt";
 
-	private static final String BOOKS_LIST =
-			"/home/anarcroth/git-anarcroth/ComputerNetworksCourse/udp/java/server/bookList.txt";
+	private static final String BOOKS_LIST = "bookList.txt";
 
 	private byte[] receivedData;
 
