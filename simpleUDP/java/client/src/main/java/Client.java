@@ -10,15 +10,13 @@ class Client {
 
 	private static final Logger LOGGER = Logger.getLogger(Client.class);
 
-	private byte[] receiveData;
-
 	private InetAddress ipAddress;
 
 	private DatagramSocket clientSocket;
 
 	public Client() throws UnknownHostException, IOException {
 
-		receiveData = new byte[1024];
+
 		clientSocket = new DatagramSocket();
 		ipAddress = InetAddress.getByName("localhost");
 
@@ -33,10 +31,11 @@ class Client {
 
 	public String receive() throws IOException {
 
+		byte[] receiveData = new byte[1024];
 		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 		clientSocket.receive(receivePacket);
 
-		return new String(receivePacket.getData()).trim();
+		return new String(receivePacket.getData(), 0, receivePacket.getLength());
 	}
 
 	public void showHelp() {

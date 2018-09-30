@@ -40,17 +40,14 @@ public class RunClient {
 		if (input.equals("?") || input.equals("help")) {
 
 			client.showHelp();
-		} else if (input.equals("GET")) {
-
-			client.send(input);
-			LOGGER.info(client.receive());
-		} else if (input.startsWith("ADD")) {
-
-			client.send(input);
 		} else if (input.startsWith("quit")) {
 
 			client.quit();
 			quit = true;
+		} else {
+
+			client.send(input);
+			LOGGER.info(client.receive());
 		}
 	}
 }

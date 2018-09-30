@@ -16,8 +16,6 @@ class BookServer {
 
 	private byte[] receivedData;
 
-	private String receievedCommand;
-
 	private DatagramSocket serverSocket;
 
 	private DatagramPacket receivedPacket;
@@ -65,39 +63,46 @@ class BookServer {
 
 		receivedPacket = new DatagramPacket(receivedData, receivedData.length);
 		serverSocket.receive(receivedPacket);
-		receievedCommand = new String(receivedPacket.getData()).trim();
+		String receievedCommand = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
 
 		LOGGER.info("Received: " + receievedCommand);
+
+		parseReceivedMessage(receievedCommand);
 	}
 
-	public void parseReceivedMessage() {
+	private void parseReceivedMessage(String receievedCommand) {
 
 		try {
-			if (receievedCommand.equals("GET")) {
-
-				send("OK\n" + getRandomBook());
-			} else if (receievedCommand.startsWith("ADD")) {
+			if (receievedCommand.startsWith("ADD")) {
 
 				validateUser(receievedCommand);
+			} else if (receievedCommand.equals("GET")) {
+
+				send("OK\n" + getRandomBook());
+			} else {
+
+				send(receievedCommand + " is not a recognized command.\nERR 400 Bad Request");
 			}
 		} catch (IOException ioe) {
 
-			LOGGER.error("Could not parse receive message", ioe);
+			LOGGER.error("Could not parse received message", ioe);
 		}
 	}
 
 	private void validateUser(String message) throws IOException {
 
-		LOGGER.info(message.substring(4));
 		if (users.contains(message.substring(4))) {
 
-			LOGGER.info("ITS OK");
 			send("OK");
+		} else {
+
+			send("NOTOK");
 		}
 	}
 
 	private void send(String message) throws IOException {
 
+		LOGGER.info(message);
 		serverSocket.send(new DatagramPacket(
 				message.getBytes(),
 				message.length(),
