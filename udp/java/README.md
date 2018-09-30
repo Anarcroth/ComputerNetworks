@@ -21,6 +21,8 @@ java -jar client-0.1.0-SNAPSHOT.jar
 
 The *server* is listening on port `9876`.
 
+**NOTE**: If someone were to test this code locally, there is a hidden trap - the server will try to locate the two `.txt` files in the `resources` folder, in the project level directory, but it might not do that, which will lead the server to explode... The workaround is to open the `BookServer.java` class and change the paths of the two constants - `USERS_LIST` and `BOOKS_LIST` to either some valid *relative path* or an *absolute path*.
+
 #### Description
 
 The program implements a `UDP` `client-server` connection, with a simple 2 commands protocol. The commands that are understood by the client and the server are respectively - `ADD` and `GET`.
