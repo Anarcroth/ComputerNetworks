@@ -1,10 +1,15 @@
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -75,7 +80,8 @@ class BookServer {
 		try {
 			if (receievedCommand.startsWith("ADD")) {
 
-				validateUser(receievedCommand);
+				String user = receievedCommand.substring(4);
+				engageInAddingBooks(user);
 			} else if (receievedCommand.equals("GET")) {
 
 				send("OK\n" + getRandomBook());
@@ -89,15 +95,40 @@ class BookServer {
 		}
 	}
 
-	private void validateUser(String message) throws IOException {
+	private void engageInAddingBooks(String user) throws IOException {
 
-		if (users.contains(message.substring(4))) {
+		LOGGER.info("Engaging in adding books");
 
-			send("OK");
-		} else {
+		while (true) {
+			if (isUserValid(user)) {
+				send("OK");
+				receivedPacket = new DatagramPacket(receivedData, receivedData.length);
+				serverSocket.receive(receivedPacket);
+				String receievedCommand = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
 
-			send("NOTOK");
+				LOGGER.info(receievedCommand);
+
+				List<String> newBooks = new ArrayList<>(Arrays.asList(receievedCommand.split(",")));
+
+				appendBookList(newBooks);
+
+				send("OK");
+
+				break;
+
+			} else {
+
+				LOGGER.info("Invalid user");
+				send("NOTOK");
+
+				break;
+			}
 		}
+	}
+
+	private boolean isUserValid(String user) throws IOException {
+
+		return users.contains(user) ? true : false;
 	}
 
 	private void send(String message) throws IOException {
@@ -108,5 +139,23 @@ class BookServer {
 				message.length(),
 				receivedPacket.getAddress(),
 				receivedPacket.getPort()));
+	}
+
+	private void appendBookList(List<String> newBooks) {
+
+		try (
+				FileWriter fw = new FileWriter("/home/anarcroth/git-anarcroth/ComputerNetworksCourse/simpleUDP/java/server/bookList.txt", true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				PrintWriter out = new PrintWriter(bw)) {
+
+			for (String book : newBooks) {
+
+				out.println(book);
+			}
+
+		} catch (IOException ioe) {
+
+			LOGGER.error("Could not append new books", ioe);
+		}
 	}
 }

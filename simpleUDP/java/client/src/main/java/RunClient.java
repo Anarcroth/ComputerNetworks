@@ -13,14 +13,16 @@ public class RunClient {
 
 	public static boolean quit;
 
+	public static Scanner in;
+
 	public static void main(String[] args) throws Exception {
 
 		client = new Client();
 
 		LOGGER.info("Type '?' or 'help' for help");
-		Scanner in = new Scanner(System.in);
-		quit = false;
-		while (!quit) {
+		in = new Scanner(System.in);
+
+		while (true) {
 
 			LOGGER.info("Input: ");
 			String input = in.nextLine();
@@ -42,12 +44,17 @@ public class RunClient {
 			client.showHelp();
 		} else if (input.startsWith("quit")) {
 
+			in.close();
 			client.quit();
-			quit = true;
-		} else {
+		} else if (input.equals("GET")) {
 
 			client.send(input);
-			LOGGER.info(client.receive());
+			client.receive();
+		} else if (input.startsWith("ADD")) {
+
+			client.send(input);
+			client.receive();
+			client.parseResponse();
 		}
 	}
 }

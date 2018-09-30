@@ -3,12 +3,16 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.apache.log4j.Logger;
 
 class Client {
 
 	private static final Logger LOGGER = Logger.getLogger(Client.class);
+
+	private String receivedData;
 
 	private InetAddress ipAddress;
 
@@ -29,13 +33,14 @@ class Client {
 		clientSocket.send(sendPacket);
 	}
 
-	public String receive() throws IOException {
+	public void receive() throws IOException {
 
-		byte[] receiveData = new byte[1024];
-		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-		clientSocket.receive(receivePacket);
+		byte[] rawReceivedData = new byte[1024];
+		DatagramPacket packet = new DatagramPacket(rawReceivedData, rawReceivedData.length);
+		clientSocket.receive(packet);
+		receivedData = new String(packet.getData(), 0, packet.getLength());
 
-		return new String(receivePacket.getData(), 0, receivePacket.getLength());
+		LOGGER.info(receivedData);
 	}
 
 	public void showHelp() {
@@ -51,5 +56,33 @@ class Client {
 		LOGGER.info("Closing the connection. . .");
 
 		clientSocket.close();
+
+		System.exit(0);
+	}
+
+	public void parseResponse() throws IOException {
+
+		if (receivedData.equals("OK")) {
+
+			Scanner input = new Scanner(System.in);
+			ArrayList<String> lines = new ArrayList<String>();
+			String lineNew;
+
+			while (input.hasNextLine()) {
+				lineNew = input.nextLine();
+				if (lineNew.isEmpty()) {
+					break;
+				}
+				lines.add(lineNew);
+			}
+
+			send(String.join(",", lines));
+			receive();
+
+		} else if (receivedData.equals("NOTOK")) {
+
+			LOGGER.info("This cilent is not part of the users who can access the book server.");
+			quit();
+		}
 	}
 }
