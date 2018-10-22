@@ -55,6 +55,7 @@ class Server {
 				}
 			});
 
+			// TODO: create a thread pool that dispatches the different client conenctions
 			t.start();
 		}
 	}
