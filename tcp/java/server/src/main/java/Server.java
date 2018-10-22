@@ -14,7 +14,9 @@ class Server {
 
 	public static void main(String argv[]) throws Exception {
 
-		ServerSocket welcomeSocket = new ServerSocket(6789);
+		ServerSocket welcomeSocket = new ServerSocket(6799);
+
+		ATMServer atmServer = new ATMServer();
 
 		while (true) {
 
