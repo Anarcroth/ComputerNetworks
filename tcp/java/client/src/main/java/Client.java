@@ -3,6 +3,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import org.apache.log4j.Logger;
@@ -11,7 +13,7 @@ class Client {
 
 	private static final Logger LOGGER = Logger.getLogger(Client.class);
 
-	private String input;
+	private ArrayList<String> input;
 
 	private Socket CLIENT_SOCKET;
 
@@ -19,7 +21,8 @@ class Client {
 
 	public Client() throws IOException {
 
-		input = "";
+		input = new ArrayList<>();
+		input.add("");
 
 		CLIENT_SOCKET = new Socket("localhost", 6789);
 	}
@@ -29,22 +32,16 @@ class Client {
 		outToServer.writeBytes(command + '\n');
 	}
 
-	public String getUserInput() {
-
-		Scanner in = new Scanner(System.in);
-
-		input = in.nextLine();
-
-		in.close();
+	public ArrayList<String> getInput() {
 
 		return input;
 	}
 
-	public void parse(String command) {
+	public void parse(ArrayList<String> command) {
 
 		LOGGER.info("Parsing the command " + command);
 
-		Commands c = Commands.valueOf(command);
+		Commands c = Commands.valueOf(command.get(0));
 
 		try {
 
