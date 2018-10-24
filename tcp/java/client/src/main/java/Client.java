@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Scanner;
@@ -10,31 +11,56 @@ class Client {
 
 	private static final Logger LOGGER = Logger.getLogger(Client.class);
 
-	public static void main(String argv[]) throws Exception {
+	private String input;
 
-		String sentence = "";
+	private Socket CLIENT_SOCKET;
 
-		String modifiedSentence;
+	public Client() throws IOException {
+
+		CLIENT_SOCKET = new Socket("localhost", 6789);
+	}
+
+	public void send(String command) throws IOException {
+
+		DataOutputStream outToServer = new DataOutputStream(CLIENT_SOCKET.getOutputStream());
+
+		outToServer.writeBytes(input + '\n');
+	}
+
+	public void get() throws IOException {
+
+		BufferedReader inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream()));
+	}
+
+	public String getUserInput() {
 
 		Scanner in = new Scanner(System.in);
 
-		Socket clientSocket = new Socket("localhost", 6789);
+		input = in.nextLine();
 
-		while (!sentence.equals("q")) {
+		in.close();
 
-			sentence = in.nextLine();
+		return input;
+	}
 
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+	private void start() {
 
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	}
 
-			outToServer.writeBytes(sentence + '\n');
+	private void close() throws IOException {
 
-			modifiedSentence = inFromServer.readLine();
+		CLIENT_SOCKET.close();
+	}
 
-			LOGGER.info("FROM SERVER: " + modifiedSentence);
-		}
+	private void auth() {
 
-		clientSocket.close();
+	}
+
+	private void balance() {
+
+	}
+
+	private void debit() {
+		
 	}
 }

@@ -1,4 +1,9 @@
-package PACKAGE_NAME;
-
 public enum Commands {
+
+	START,
+	CLOSE,
+	AUTH,
+	BALANCE,
+	CREDIT,
+	DEBIT;
 }
