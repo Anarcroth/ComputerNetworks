@@ -16,32 +16,70 @@ public class ATMServer {
 
 	private ArrayList<Account> accounts;
 
-	private final ServerSocket CLIENT_SOCKET;
+	private ServerSocket CLIENT_SOCKET;
 
 	public ATMServer() throws IOException {
 
 		accounts = new ArrayList<>(5);
-		accounts.forEach(a -> a = new Account());
+		for (int i = 0; i < 5; i++) {
+			accounts.add(new Account());
+		}
 
 		CLIENT_SOCKET = new ServerSocket(6789);
 	}
 
-	public void getResponse() throws IOException {
+	public void init() throws IOException {
 
 		connectionSocket = CLIENT_SOCKET.accept();
+	}
+
+	public void listen() throws IOException {
+
+		while (true) {
+
+			init();
+
+			Thread t = new Thread(() -> {
+
+				try {
+
+					while (true) {
+
+						getResponse();
+						sendResponse();
+
+						//						Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+						//						for (Thread t1 : threadSet) {
+						//
+						//							LOGGER.info(t1.getName() + " - " + t1.getId());
+						//						}
+						//						LOGGER.info("\n");
+					}
+
+				} catch (Exception ioe) {
+
+					LOGGER.error("Could not connect with new client", ioe);
+				}
+			});
+
+			// TODO: create a thread pool that dispatches the different client conenctions
+			t.start();
+		}
+	}
+
+	public void getResponse() throws IOException {
 
 		BufferedReader inFromClient =
 				new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
 		LOGGER.info("Received: " + inFromClient.readLine());
-
 	}
 
 	public void sendResponse() throws IOException {
 
 		DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
-		outToClient.writeBytes("OK");
+		outToClient.writeBytes("OK\n");
 	}
 
 	public void drawMenu() {
