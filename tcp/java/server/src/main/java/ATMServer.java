@@ -16,7 +16,7 @@ public class ATMServer {
 
 	private ArrayList<Account> accounts;
 
-	private ServerSocket CLIENT_SOCKET;
+	private ServerSocket SERVER_SOCKET;
 
 	public ATMServer() throws IOException {
 
@@ -25,12 +25,12 @@ public class ATMServer {
 			accounts.add(new Account());
 		}
 
-		CLIENT_SOCKET = new ServerSocket(6789);
+		SERVER_SOCKET = new ServerSocket(6789);
 	}
 
 	public void init() throws IOException {
 
-		connectionSocket = CLIENT_SOCKET.accept();
+		connectionSocket = SERVER_SOCKET.accept();
 	}
 
 	public void listen() throws IOException {
