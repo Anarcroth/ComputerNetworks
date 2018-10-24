@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 import org.apache.log4j.Logger;
 
 public class RunClient {
@@ -8,9 +10,15 @@ public class RunClient {
 
 		Client client = new Client();
 
-		while (!client.getUserInput().equals("quit")) {
+		Scanner c = new Scanner(System.in);
 
+		String in = c.nextLine();
 
+		while (!in.equals("quit")) {
+
+			in = c.nextLine();
+
+			client.parse(in);
 		}
 	}
 }

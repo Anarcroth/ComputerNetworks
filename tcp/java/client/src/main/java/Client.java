@@ -15,21 +15,18 @@ class Client {
 
 	private Socket CLIENT_SOCKET;
 
+	private DataOutputStream outToServer;
+
 	public Client() throws IOException {
+
+		input = "";
 
 		CLIENT_SOCKET = new Socket("localhost", 6789);
 	}
 
 	public void send(String command) throws IOException {
 
-		DataOutputStream outToServer = new DataOutputStream(CLIENT_SOCKET.getOutputStream());
-
-		outToServer.writeBytes(input + '\n');
-	}
-
-	public void get() throws IOException {
-
-		BufferedReader inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream()));
+		outToServer.writeBytes(command + '\n');
 	}
 
 	public String getUserInput() {
@@ -43,11 +40,59 @@ class Client {
 		return input;
 	}
 
-	private void start() {
+	public void parse(String command) {
 
+		LOGGER.info("Parsing the command " + command);
+
+		Commands c = Commands.valueOf(command);
+
+		try {
+
+			switch (c) {
+
+				case START:
+					start();
+					break;
+
+				case CLOSE:
+					close();
+					break;
+
+				case AUTH:
+					break;
+
+				case DEBIT:
+					break;
+
+				case CREDIT:
+					break;
+
+				case BALANCE:
+					break;
+
+				case PING:
+					ping();
+					get();
+					break;
+
+				default:
+			}
+		} catch (IOException ioe) {
+
+			LOGGER.error("Could not execute command " + command, ioe);
+		}
+	}
+
+	private void start() throws IOException {
+
+		LOGGER.info("Creating a connection to the server");
+
+		outToServer = new DataOutputStream(CLIENT_SOCKET.getOutputStream());
 	}
 
 	private void close() throws IOException {
+
+		LOGGER.info("Closing the connection");
 
 		CLIENT_SOCKET.close();
 	}
@@ -61,6 +106,18 @@ class Client {
 	}
 
 	private void debit() {
-		
+
+	}
+
+	private void ping() throws IOException {
+
+		outToServer.writeBytes("ping" + '\n');
+	}
+
+	private void get() throws IOException {
+
+		String inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream())).readLine();
+
+		LOGGER.info(inFromServer);
 	}
 }
