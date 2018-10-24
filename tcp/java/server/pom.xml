@@ -35,7 +35,7 @@
 							<transformers>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>Server</mainClass>
+									<mainClass>RunServer</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
