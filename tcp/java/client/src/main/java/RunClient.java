@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 
 public class RunClient {
 
-	private static Logger LOGGER = Logger.getLogger(RunClient.class);
+	private static final Logger LOGGER = Logger.getLogger(RunClient.class);
 
 	public static void main(String argv[]) throws Exception {
 
@@ -22,19 +22,19 @@ public class RunClient {
 
 	public static ArrayList<String> getUserInput() {
 
-		LOGGER.info("Enter a command: ");
+		ArrayList<String> input = new ArrayList<>();
 
-		Scanner in = new Scanner(System.in);
+		while (!validUserInput(input)) {
 
-		String rawInput = in.nextLine();
+			LOGGER.info("Enter a command: ");
 
-		in.close();
+			Scanner in = new Scanner(System.in);
 
-		ArrayList<String> input = new ArrayList<>(Arrays.asList(rawInput.split(" ")));
+			String rawInput = in.nextLine();
 
-		if (!validUserInput(input)) {
+			in.close();
 
-			getUserInput();
+			input = new ArrayList<>(Arrays.asList(rawInput.split(" ")));
 		}
 
 		return input;
@@ -47,13 +47,16 @@ public class RunClient {
 
 		try {
 
-			Commands in = Commands.valueOf(input.get(0));
+			Commands.valueOf(input.get(0));
 
 			return true;
 
 		} catch (IllegalArgumentException iae) {
 
 			LOGGER.error(input.get(0) + " is not a supported command");
+
+			return false;
+		} catch (Exception e) {
 
 			return false;
 		}
