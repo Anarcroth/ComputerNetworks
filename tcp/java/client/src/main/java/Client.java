@@ -14,15 +14,15 @@ class Client {
 
 	private static final Logger LOGGER = Logger.getLogger(Client.class);
 
-	private ArrayList<String> input;
-
-	private Socket CLIENT_SOCKET;
-
-	private DataOutputStream outToServer;
-
 	private final Scanner UIN;
 
 	private boolean authorized;
+
+	private Socket CLIENT_SOCKET;
+
+	private ArrayList<String> input;
+
+	private DataOutputStream outToServer;
 
 	public Client() throws IOException {
 
@@ -77,9 +77,7 @@ class Client {
 		LOGGER.info("Parsing the command " + c);
 
 		try {
-
 			switch (c) {
-
 				case START:
 					start();
 					break;
@@ -95,10 +93,10 @@ class Client {
 				case DEBIT:
 					break;
 				case CREDIT:
+					credit(command.get(1));
 					break;
 				case PING:
 					ping();
-					get();
 					break;
 				default:
 			}
@@ -130,6 +128,9 @@ class Client {
 		if (get().equals("OK")) {
 
 			authorized = true;
+		} else {
+
+			LOGGER.error("You did not authorize correctly. Missing or wrong pin!");
 		}
 	}
 
@@ -177,6 +178,7 @@ class Client {
 	private void ping() throws IOException {
 
 		send("ping");
+		get();
 	}
 
 	public void send(String message) throws IOException {
