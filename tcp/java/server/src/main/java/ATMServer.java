@@ -45,15 +45,15 @@ public class ATMServer {
 
 					while (true) {
 
-						getResponse();
-						sendResponse();
+						String clientCommand = get();
+						parse(clientCommand);
 
-						//						Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
-						//						for (Thread t1 : threadSet) {
-						//
-						//							LOGGER.info(t1.getName() + " - " + t1.getId());
-						//						}
-						//						LOGGER.info("\n");
+//						Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+//						for (Thread t1 : threadSet) {
+//
+//							LOGGER.info(t1.getName() + " - " + t1.getId());
+//						}
+//						LOGGER.info("\n");
 					}
 
 				} catch (Exception ioe) {
@@ -67,22 +67,69 @@ public class ATMServer {
 		}
 	}
 
-	public void getResponse() throws IOException {
+	public String get() throws IOException {
 
-		BufferedReader inFromClient =
-				new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+		String inFromClient =
+				new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())).readLine();
 
-		LOGGER.info("Received: " + inFromClient.readLine());
+		LOGGER.info("Received: " + inFromClient);
+
+		return inFromClient;
 	}
 
-	public void sendResponse() throws IOException {
+	public void send(String message) throws IOException {
 
 		DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
-		outToClient.writeBytes("OK\n");
+		outToClient.writeBytes(message + "\n");
 	}
 
-	public void drawMenu() {
+	public void parse(String message) {
+
+		Commands c = Commands.valueOf(message);
+
+		try {
+			switch (c) {
+				case PING:
+					send("pong");
+					break;
+				case START:
+				case CLOSE:
+					send("OK");
+					break;
+				case AUTH:
+					auth();
+					break;
+				case BALANCE:
+					balance();
+					break;
+				case CREDIT:
+					credit();
+					break;
+				case DEBIT:
+					debit();
+					break;
+					default:
+			}
+		} catch (IOException ioe) {
+
+			LOGGER.error("Could not parse incomming " + c, ioe);
+		}
+	}
+
+	private void auth() {
+
+	}
+
+	private void balance() {
+
+	}
+
+	private void credit() {
+
+	}
+
+	private void debit() {
 
 	}
 }
