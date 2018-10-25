@@ -86,11 +86,12 @@ class Client {
 				case AUTH:
 					auth(command.get(1));
 					break;
+				case BALANCE:
+					balance();
+					break;
 				case DEBIT:
 					break;
 				case CREDIT:
-					break;
-				case BALANCE:
 					break;
 				case PING:
 					ping();
@@ -129,7 +130,21 @@ class Client {
 		}
 	}
 
-	private void balance() {
+	private void balance() throws IOException {
+
+		if (authorized) {
+
+			send("BALANCE");
+			String balanceAnswer = get();
+
+			LOGGER.info("Your balance is " + balanceAnswer);
+		} else {
+
+			getUserInput("Please enter your pin number and authorize first");
+		}
+	}
+
+	private void debit() throws IOException {
 
 		if (authorized) {
 
@@ -139,7 +154,7 @@ class Client {
 		}
 	}
 
-	private void debit() {
+	private void credit() throws IOException {
 
 		if (authorized) {
 
