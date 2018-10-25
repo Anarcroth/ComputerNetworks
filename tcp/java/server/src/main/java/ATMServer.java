@@ -117,19 +117,30 @@ public class ATMServer {
 		}
 	}
 
-	private void auth() {
+	private void auth() throws IOException {
+
+		Integer pin = Integer.parseInt(get());
+
+		for (Account a : accounts) {
+
+			if (pin.equals(a.getPin())) {
+
+				send("OK");
+				
+				a.setAuthorized(true);
+			}
+		}
+	}
+
+	private void balance() throws IOException {
 
 	}
 
-	private void balance() {
+	private void credit() throws IOException {
 
 	}
 
-	private void credit() {
-
-	}
-
-	private void debit() {
+	private void debit() throws IOException {
 
 	}
 }
