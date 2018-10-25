@@ -154,10 +154,17 @@ class Client {
 		}
 	}
 
-	private void credit() throws IOException {
+	private void credit(String amount) throws IOException {
 
 		if (authorized) {
 
+			send("CREDIT " + amount);
+			String creditAnswer = get();
+
+			LOGGER.info("You deposited " + amount);
+
+			// Tell the balance to the client
+			balance();
 		} else {
 
 			getUserInput("Please enter your pin number and authorize first");
