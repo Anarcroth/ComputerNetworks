@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import jline.console.ConsoleReader;
 import org.apache.log4j.Logger;
 
 class Client {
@@ -36,6 +37,8 @@ class Client {
 	}
 
 	public void getUserInput() {
+
+		drawMenu();
 
 		LOGGER.info("Enter a command: ");
 
@@ -207,5 +210,26 @@ class Client {
 
 			getUserInput();
 		}
+	}
+
+	private void drawMenu() {
+
+		try {
+
+			ConsoleReader r = new ConsoleReader();
+			r.clearScreen();
+
+		} catch (IOException ioe) {
+
+			LOGGER.error("Could not initialize a console reader to clear screen. Your screen won't be cleared", ioe);
+		}
+
+		LOGGER.info("--- ATM Services ---");
+		LOGGER.info("1. Start");
+		LOGGER.info("2. Close");
+		LOGGER.info("3. Balance");
+		LOGGER.info("4. Deibt");
+		LOGGER.info("5. Credit");
+		LOGGER.info("0. Ping");
 	}
 }
