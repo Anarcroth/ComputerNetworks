@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 import org.apache.log4j.Logger;
 
@@ -17,10 +19,14 @@ class Client {
 
 	private DataOutputStream outToServer;
 
+	Scanner in;
+
 	public Client() throws IOException {
 
 		input = new ArrayList<>();
 		input.add("");
+
+		in = new Scanner(System.in);
 
 		CLIENT_SOCKET = new Socket("localhost", 6789);
 	}
@@ -30,16 +36,34 @@ class Client {
 		outToServer.writeBytes(command + '\n');
 	}
 
+	public void getUserInput() {
+
+		LOGGER.info("Enter a command: ");
+
+		String rawInput = in.nextLine();
+
+		checkUserInput(new ArrayList<>(Arrays.asList(rawInput.split(" "))));
+	}
+
 	public ArrayList<String> getInput() {
 
 		return input;
 	}
 
-	public void parse(ArrayList<String> command) {
+	public void end() {
 
-		LOGGER.info("Parsing the command " + command);
+		try {
 
-		Commands c = Commands.valueOf(command.get(0));
+			close();
+		} catch (IOException ioe) {
+
+			LOGGER.error("Could not close connection", ioe);
+		}
+	}
+
+	public void parse(Commands c, ArrayList<String> command) {
+
+		LOGGER.info("Parsing the command " + c);
 
 		try {
 
@@ -89,6 +113,8 @@ class Client {
 
 		LOGGER.info("Closing the connection");
 
+		in.close();
+
 		CLIENT_SOCKET.close();
 	}
 
@@ -114,5 +140,24 @@ class Client {
 		String inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream())).readLine();
 
 		LOGGER.info(inFromServer);
+	}
+
+	// This is a very basic check for any user input if it's valid or not
+	// Since we don't care if the user passes any arguments to the possible commands (with the exception of AUTH),
+	// we just make sure that the first word of the whole line input is a valid command
+	private void checkUserInput(ArrayList<String> input) {
+
+		try {
+
+			Commands c = Commands.valueOf(input.get(0));
+
+			parse(c, input);
+
+		} catch (IllegalArgumentException iae) {
+
+			LOGGER.error(input.get(0) + " is not a supported command");
+
+			getUserInput();
+		}
 	}
 }
