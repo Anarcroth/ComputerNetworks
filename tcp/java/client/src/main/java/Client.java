@@ -19,28 +19,36 @@ class Client {
 
 	private DataOutputStream outToServer;
 
-	Scanner in;
+	private final Scanner UIN;
+
+	private boolean authorized;
 
 	public Client() throws IOException {
 
 		input = new ArrayList<>();
 		input.add("");
 
-		in = new Scanner(System.in);
+		UIN = new Scanner(System.in);
+
+		authorized = false;
 
 		CLIENT_SOCKET = new Socket("localhost", 6789);
-	}
-
-	public void send(String command) throws IOException {
-
-		outToServer.writeBytes(command + '\n');
 	}
 
 	public void getUserInput() {
 
 		LOGGER.info("Enter a command: ");
 
-		String rawInput = in.nextLine();
+		String rawInput = UIN.nextLine();
+
+		checkUserInput(new ArrayList<>(Arrays.asList(rawInput.split(" "))));
+	}
+
+	public void getUserInput(String message) {
+
+		LOGGER.info(message);
+
+		String rawInput = UIN.nextLine();
 
 		checkUserInput(new ArrayList<>(Arrays.asList(rawInput.split(" "))));
 	}
@@ -72,28 +80,22 @@ class Client {
 				case START:
 					start();
 					break;
-
 				case CLOSE:
 					close();
 					break;
-
 				case AUTH:
+					auth(command.get(1));
 					break;
-
 				case DEBIT:
 					break;
-
 				case CREDIT:
 					break;
-
 				case BALANCE:
 					break;
-
 				case PING:
 					ping();
 					get();
 					break;
-
 				default:
 			}
 		} catch (IOException ioe) {
@@ -113,33 +115,57 @@ class Client {
 
 		LOGGER.info("Closing the connection");
 
-		in.close();
+		UIN.close();
 
 		CLIENT_SOCKET.close();
 	}
 
-	private void auth() {
+	private void auth(String pin) throws IOException {
 
+		send("AUTH " + pin);
+		if (get().equals("OK")) {
+
+			authorized = true;
+		}
 	}
 
 	private void balance() {
 
+		if (authorized) {
+
+		} else {
+
+			getUserInput("Please enter your pin number and authorize first");
+		}
 	}
 
 	private void debit() {
 
+		if (authorized) {
+
+		} else {
+
+			getUserInput("Please enter your pin number and authorize first");
+		}
 	}
 
 	private void ping() throws IOException {
 
-		outToServer.writeBytes("ping" + '\n');
+		send("ping");
 	}
 
-	private void get() throws IOException {
+	public void send(String message) throws IOException {
+
+		outToServer.writeBytes(message + '\n');
+	}
+
+	private String get() throws IOException {
 
 		String inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream())).readLine();
 
 		LOGGER.info(inFromServer);
+
+		return inFromServer;
 	}
 
 	// This is a very basic check for any user input if it's valid or not
