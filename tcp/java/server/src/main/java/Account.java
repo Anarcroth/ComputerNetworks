@@ -2,6 +2,8 @@ import java.util.UUID;
 
 public class Account {
 
+	private int port;
+
 	private Integer pin;
 
 	private UUID accountId;
@@ -23,6 +25,16 @@ public class Account {
 		this.currentBalance = currentBalance;
 
 		accountId = UUID.randomUUID();
+	}
+
+	public int getPort() {
+
+		return port;
+	}
+
+	public void setPort(int port) {
+
+		this.port = port;
 	}
 
 	public Integer getPin() {

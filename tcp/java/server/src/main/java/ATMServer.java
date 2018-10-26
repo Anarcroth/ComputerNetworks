@@ -126,14 +126,22 @@ public class ATMServer {
 			if (pin.equals(a.getPin())) {
 
 				send("OK");
-				
+
 				a.setAuthorized(true);
+				a.setPort(connectionSocket.getPort());
 			}
 		}
 	}
 
 	private void balance() throws IOException {
 
+		for (Account a : accounts) {
+
+			if (a.getPort() == connectionSocket.getPort()) {
+
+				send("OK\n" + a.getAccountName() + ", " + a.getAccountId() + ", " + a.getCurrentBalance() + " $");
+			}
+		}
 	}
 
 	private void credit() throws IOException {
