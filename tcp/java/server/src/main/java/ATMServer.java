@@ -48,12 +48,12 @@ public class ATMServer {
 						String clientCommand = get();
 						parse(clientCommand);
 
-//						Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
-//						for (Thread t1 : threadSet) {
-//
-//							LOGGER.info(t1.getName() + " - " + t1.getId());
-//						}
-//						LOGGER.info("\n");
+						//						Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+						//						for (Thread t1 : threadSet) {
+						//
+						//							LOGGER.info(t1.getName() + " - " + t1.getId());
+						//						}
+						//						LOGGER.info("\n");
 					}
 
 				} catch (Exception ioe) {
@@ -136,38 +136,43 @@ public class ATMServer {
 
 	private void balance() throws IOException {
 
-		for (Account a : accounts) {
+		Account a = getAccountByPort(connectionSocket.getPort());
 
-			if (a.getPort() == connectionSocket.getPort()) {
-
-				send("OK\n" + a.getAccountName() + ", " + a.getAccountId() + ", " + a.getCurrentBalance() + " $");
-			}
-		}
+		send("OK\n" + a.getAccountName() + ", " + a.getAccountId() + ", " + a.getCurrentBalance() + " $");
 	}
 
 	private void debit(String amount) throws IOException {
 
 		Integer am = Integer.parseInt(amount);
 
-		for (Account a : accounts) {
+		Account a = getAccountByPort(connectionSocket.getPort());
 
-			if (a.getPort() == connectionSocket.getPort()) {
+		if (a.getCurrentBalance() < am) {
 
-				if (a.getCurrentBalance() < am) {
+			send("NOTOK\nAmount limited for withdraw!");
+		} else {
 
-					send("NOTOK\nAmount limited for withdraw!");
-				} else {
+			Integer diff = a.getCurrentBalance() - am;
+			a.setCurrentBalance(diff);
 
-					Integer diff = a.getCurrentBalance() - am;
-					a.setCurrentBalance(diff);
-
-					send("OK\n" + am + " $ were widraw.");
-				}
-			}
+			send("OK\n" + am + " $ were widraw.");
 		}
 	}
 
 	private void credit() throws IOException {
 
+	}
+
+	private Account getAccountByPort(int port) {
+
+		for (Account a : accounts) {
+
+			if (a.getPort() == port) {
+
+				return a;
+			}
+		}
+
+		return null;
 	}
 }
