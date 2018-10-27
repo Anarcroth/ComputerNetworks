@@ -84,9 +84,10 @@ public class ATMServer {
 		outToClient.writeBytes(message + "\n");
 	}
 
-	public void parse(String message) {
+	public void parse(String command) {
 
-		Commands c = Commands.valueOf(message);
+		String[] messages = command.split(" ");
+		Commands c = Commands.valueOf(messages[0]);
 
 		try {
 			switch (c) {
@@ -103,13 +104,13 @@ public class ATMServer {
 				case BALANCE:
 					balance();
 					break;
+				case DEBIT:
+					debit(messages[1]);
+					break;
 				case CREDIT:
 					credit();
 					break;
-				case DEBIT:
-					debit();
-					break;
-					default:
+				default:
 			}
 		} catch (IOException ioe) {
 
@@ -144,11 +145,29 @@ public class ATMServer {
 		}
 	}
 
-	private void credit() throws IOException {
+	private void debit(String amount) throws IOException {
 
+		Integer am = Integer.parseInt(amount);
+
+		for (Account a : accounts) {
+
+			if (a.getPort() == connectionSocket.getPort()) {
+
+				if (a.getCurrentBalance() < am) {
+
+					send("NOTOK\nAmount limited for withdraw!");
+				} else {
+
+					Integer diff = a.getCurrentBalance() - am;
+					a.setCurrentBalance(diff);
+
+					send("OK\n" + am + " $ were widraw.");
+				}
+			}
+		}
 	}
 
-	private void debit() throws IOException {
+	private void credit() throws IOException {
 
 	}
 }
