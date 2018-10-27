@@ -108,7 +108,7 @@ public class ATMServer {
 					debit(messages[1]);
 					break;
 				case CREDIT:
-					credit();
+					credit(messages[1]);
 					break;
 				default:
 			}
@@ -159,8 +159,17 @@ public class ATMServer {
 		}
 	}
 
-	private void credit() throws IOException {
+	private void credit(String amount) throws IOException {
 
+		Integer am = Integer.parseInt(amount);
+
+		Account a = getAccountByPort(connectionSocket.getPort());
+
+		Integer sum = a.getCurrentBalance() + am;
+
+		a.setCurrentBalance(sum);
+
+		send("OK\nAdded " + am + " $ to your account.");
 	}
 
 	private Account getAccountByPort(int port) {
