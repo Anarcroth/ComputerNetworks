@@ -150,23 +150,27 @@ public class ATMServer {
 	private void debit() throws IOException {
 
 		Account a = getAccountByPort(connectionSocket.getPort());
-
 		send("OK");
 
-		// This get's the expected debit amount from the client
-		Integer am = Integer.parseInt(get());
+		try {
+			// This get's the expected debit amount from the client
+			Integer am = Integer.parseInt(get());
 
-		if (a.getCurrentBalance() < am) {
+			if (a.getCurrentBalance() < am) {
 
+				send("NOTOK");
+				send("Amount limited for withdraw!");
+			} else {
+
+				Integer diff = a.getCurrentBalance() - am;
+				a.setCurrentBalance(diff);
+
+				send("OK");
+				send("Widrawn " + am.toString() + "$");
+			}
+		} catch (NumberFormatException nfe) {
+			LOGGER.error("This is not a valid input");
 			send("NOTOK");
-			send("Amount limited for withdraw!");
-		} else {
-
-			Integer diff = a.getCurrentBalance() - am;
-			a.setCurrentBalance(diff);
-
-			send("OK");
-			send("Widrawn " + am.toString() + "$");
 		}
 	}
 
@@ -176,13 +180,18 @@ public class ATMServer {
 
 		send("OK");
 
-		// This get's the expected credit amount from the client
-		Integer am = Integer.parseInt(get());
-		Integer sum = a.getCurrentBalance() + am;
-		a.setCurrentBalance(sum);
+		try {
+			// This get's the expected credit amount from the client
+			Integer am = Integer.parseInt(get());
+			Integer sum = a.getCurrentBalance() + am;
+			a.setCurrentBalance(sum);
 
-		send("OK");
-		send("Added " + am.toString() + "$");
+			send("OK");
+			send("Added " + am.toString() + "$");
+		} catch (NumberFormatException nfe) {
+			LOGGER.error("This is not a valid input");
+			send("NOTOK");
+		}
 	}
 
 	private Account getAccountByPort(int port) {

@@ -145,7 +145,8 @@ class Client {
 			}
 
 			if (get().equals("OK")) {
-
+				LOGGER.info(get());
+			} else {
 				LOGGER.info(get());
 			}
 
@@ -169,7 +170,8 @@ class Client {
 			}
 
 			if (get().equals("OK")) {
-
+				LOGGER.info(get());
+			} else {
 				LOGGER.info(get());
 			}
 
@@ -203,16 +205,14 @@ class Client {
 	private void checkUserInput(String input) {
 
 		try {
-
 			Integer inputNumber = Integer.parseInt(input);
 			if (inputNumber >= 0 && inputNumber <= 6) {
-
 				Commands c = Commands.getCommand(inputNumber);
 				parse(c);
+			} else {
+				LOGGER.info("There is no such command with and index " + inputNumber);
 			}
-
 		} catch (IllegalArgumentException iae) {
-
 			LOGGER.error(input + " is not a supported command");
 			getUserInput();
 		}
