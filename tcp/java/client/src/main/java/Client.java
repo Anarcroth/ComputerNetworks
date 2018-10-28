@@ -113,7 +113,6 @@ class Client {
 		LOGGER.info("Creating a connection to the server");
 
 		outToServer = new DataOutputStream(CLIENT_SOCKET.getOutputStream());
-
 		inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream()));
 
 		send("START");
@@ -173,8 +172,10 @@ class Client {
 				send(debit);
 			}
 
-			LOGGER.info(get());
-			LOGGER.info(get());
+			if (get().equals("OK")) {
+
+				LOGGER.info(get());
+			}
 
 			// Tell the balance to the client
 			balance();
@@ -195,8 +196,10 @@ class Client {
 				send(credit);
 			}
 
-			LOGGER.info(get());
-			LOGGER.info(get());
+			if (get().equals("OK")) {
+
+				LOGGER.info(get());
+			}
 
 			// Tell the balance to the client
 			balance();
@@ -219,11 +222,11 @@ class Client {
 
 	private String get() throws IOException {
 
-		String inFromServer = this.inFromServer.readLine();
+		String in = inFromServer.readLine();
 
-		LOGGER.info(inFromServer);
+		LOGGER.debug(in);
 
-		return inFromServer;
+		return in;
 	}
 
 	// This is a very basic check for any user input if it's valid or not
