@@ -87,6 +87,7 @@ public class ATMServer {
 	public void parse(String command) {
 
 		String[] messages = command.split(" ");
+		LOGGER.info(messages[0]);
 		Commands c = Commands.valueOf(messages[0]);
 
 		try {

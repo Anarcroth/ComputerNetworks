@@ -177,7 +177,7 @@ class Client {
 
 	private void ping() throws IOException {
 
-		send("ping");
+		send("PING");
 		get();
 	}
 
