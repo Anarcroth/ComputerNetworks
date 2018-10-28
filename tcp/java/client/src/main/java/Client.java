@@ -19,16 +19,11 @@ class Client {
 
 	private Socket CLIENT_SOCKET;
 
-	private ArrayList<String> input;
-
 	private DataOutputStream outToServer;
 
 	private BufferedReader inFromServer;
 
 	public Client() throws IOException {
-
-		input = new ArrayList<>();
-		input.add("");
 
 		UIN = new Scanner(System.in);
 
@@ -55,11 +50,6 @@ class Client {
 		String rawInput = UIN.nextLine();
 
 		return rawInput;
-	}
-
-	public ArrayList<String> getInput() {
-
-		return input;
 	}
 
 	public void end() {
