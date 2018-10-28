@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
@@ -35,17 +36,13 @@ public class ATMServer {
 		SERVER_SOCKET = new ServerSocket(6789);
 	}
 
-	public void init() throws IOException {
-
-		connectionSocket = SERVER_SOCKET.accept();
-	}
-
 	public void listen() throws IOException {
 
 		while (true) {
 
 			LOGGER.info("Starting ATM Server.");
-			init();
+			// init
+			connectionSocket = SERVER_SOCKET.accept();
 			ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 			executorService.submit(() -> {
 				try {
@@ -72,8 +69,8 @@ public class ATMServer {
 	}
 
 	public void send(String message) throws IOException {
-		outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
+		outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 		outToClient.writeBytes(message + '\n');
 	}
 
@@ -85,7 +82,7 @@ public class ATMServer {
 					LOGGER.info("Started a connection with " + connectionSocket.getPort());
 					send("OK");
 				case CLOSE:
-					close();
+					LOGGER.info("Closed connection form " + connectionSocket.getPort());
 					break;
 				case AUTH:
 					auth();
@@ -103,6 +100,7 @@ public class ATMServer {
 					send("PONG");
 					break;
 				default:
+					LOGGER.error("Unrecognized command " + c);
 			}
 		} catch (IOException ioe) {
 
@@ -110,14 +108,15 @@ public class ATMServer {
 		}
 	}
 
-	private void close() throws IOException {
+	public void updateClients() {
 
-		for (Account a :  accounts) {
-
-			if (connectionSocket.getPort() == a.getPort()) {
-
-				accounts.remove(a);
+		File file = new File(CLIENTS_LIST);
+		try (FileWriter fileWriter = new FileWriter(file, false)) {
+			for (Account a : accounts) {
+				fileWriter.write(a.getAccountName() + " " + a.getPin() + " " + a.getCurrentBalance() + "\n");
 			}
+		} catch (IOException ioe) {
+			LOGGER.error("Could not update clients list", ioe);
 		}
 	}
 
@@ -125,18 +124,18 @@ public class ATMServer {
 
 		send("OK");
 
-		// This get's the expected pin form the client
+		// This gets the expected pin form the client
 		Integer receivedPin = Integer.parseInt(get());
 
-		for (Account a : accounts) {
+		Account authAccount = accounts.stream().filter(a -> a.getPin().equals(receivedPin)).findFirst().orElse(null);
 
-			if (receivedPin.equals(a.getPin())) {
-
-				send("OK");
-
-				a.setAuthorized(true);
-				a.setPort(connectionSocket.getPort());
-			}
+		try {
+			authAccount.setAuthorized(true);
+			authAccount.setPort(connectionSocket.getPort());
+			send("OK");
+		} catch (NullPointerException npe) {
+			LOGGER.error("Unrecognized pin");
+			send("NOTOK");
 		}
 	}
 
@@ -156,7 +155,6 @@ public class ATMServer {
 
 		// This get's the expected debit amount from the client
 		Integer am = Integer.parseInt(get());
-		String a1 = am.toString();
 
 		if (a.getCurrentBalance() < am) {
 
@@ -168,7 +166,7 @@ public class ATMServer {
 			a.setCurrentBalance(diff);
 
 			send("OK");
-			send("Widrawn " + a1 + "$");
+			send("Widrawn " + am.toString() + "$");
 		}
 	}
 
@@ -180,9 +178,7 @@ public class ATMServer {
 
 		// This get's the expected credit amount from the client
 		Integer am = Integer.parseInt(get());
-
 		Integer sum = a.getCurrentBalance() + am;
-
 		a.setCurrentBalance(sum);
 
 		send("OK");
@@ -192,13 +188,10 @@ public class ATMServer {
 	private Account getAccountByPort(int port) {
 
 		for (Account a : accounts) {
-
 			if (a.getPort() == port) {
-
 				return a;
 			}
 		}
-
 		return null;
 	}
 
@@ -217,7 +210,6 @@ public class ATMServer {
 				list.add(new Account(name, pin, balance));
 			});
 		}
-
 		return list;
 	}
 }
