@@ -3,7 +3,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import jline.console.ConsoleReader;
@@ -15,38 +14,31 @@ class Client {
 
 	private final Scanner UIN;
 
+	private final Socket CLIENT_SOCKET;
+
 	private boolean authorized;
-
-	private Socket CLIENT_SOCKET;
-
-	private DataOutputStream outToServer;
 
 	private BufferedReader inFromServer;
 
+	private DataOutputStream outToServer;
+
 	public Client() throws IOException {
 
-		UIN = new Scanner(System.in);
-
 		authorized = false;
-
+		UIN = new Scanner(System.in);
 		CLIENT_SOCKET = new Socket("localhost", 6789);
 	}
 
 	public void getUserInput() {
 
 		drawMenu();
-
-		LOGGER.info("Enter a command number: ");
-
 		String rawInput = UIN.nextLine();
-
 		checkUserInput(rawInput);
 	}
 
 	public String getUserInput(String message) {
 
 		LOGGER.info(message);
-
 		String rawInput = UIN.nextLine();
 
 		return rawInput;
@@ -55,17 +47,13 @@ class Client {
 	public void end() {
 
 		try {
-
 			close();
 		} catch (IOException ioe) {
-
 			LOGGER.error("Could not close connection", ioe);
 		}
 	}
 
 	public void parse(Commands c) {
-
-		LOGGER.info("Parsing the command " + c);
 
 		try {
 			switch (c) {
@@ -93,7 +81,6 @@ class Client {
 				default:
 			}
 		} catch (IOException ioe) {
-
 			LOGGER.error("Could not execute " + c, ioe);
 		}
 	}
@@ -106,7 +93,7 @@ class Client {
 		inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream()));
 
 		send("START");
-		get();
+		LOGGER.info(get());
 	}
 
 	private void close() throws IOException {
@@ -114,9 +101,7 @@ class Client {
 		LOGGER.info("Closing the connection");
 
 		send("CLOSE");
-
 		CLIENT_SOCKET.close();
-
 		System.exit(0);
 	}
 
@@ -128,10 +113,8 @@ class Client {
 		send(pin);
 
 		if (get().equals("OK")) {
-
 			authorized = true;
 		} else {
-
 			LOGGER.error("You did not authorize correctly. Missing or wrong pin!");
 		}
 	}
@@ -142,7 +125,6 @@ class Client {
 
 			send("BALANCE");
 			if (get().equals("OK")) {
-
 				LOGGER.info(get());
 			}
 		} else {
@@ -202,7 +184,7 @@ class Client {
 	private void ping() throws IOException {
 
 		send("PING");
-		get();
+		LOGGER.info(get());
 	}
 
 	public void send(String message) throws IOException {
@@ -212,11 +194,7 @@ class Client {
 
 	private String get() throws IOException {
 
-		String in = inFromServer.readLine();
-
-		LOGGER.debug(in);
-
-		return in;
+		return inFromServer.readLine();
 	}
 
 	// This is a very basic check for any user input if it's valid or not
@@ -227,7 +205,6 @@ class Client {
 		try {
 
 			Integer inputNumber = Integer.parseInt(input);
-
 			if (inputNumber >= 0 && inputNumber <= 6) {
 
 				Commands c = Commands.getCommand(inputNumber);
@@ -237,7 +214,6 @@ class Client {
 		} catch (IllegalArgumentException iae) {
 
 			LOGGER.error(input + " is not a supported command");
-
 			getUserInput();
 		}
 	}
@@ -245,12 +221,9 @@ class Client {
 	private void drawMenu() {
 
 		try {
-
 			ConsoleReader r = new ConsoleReader();
 			r.clearScreen();
-
 		} catch (IOException ioe) {
-
 			LOGGER.error("Could not initialize a console reader to clear screen. Your screen won't be cleared", ioe);
 		}
 
@@ -262,5 +235,6 @@ class Client {
 		LOGGER.info("5. Deibt");
 		LOGGER.info("6. Credit");
 		LOGGER.info("0. Ping");
+		LOGGER.info("Enter a command number: ");
 	}
 }
