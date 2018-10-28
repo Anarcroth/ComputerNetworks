@@ -22,18 +22,13 @@ public class ATMServer {
 
 	private ServerSocket SERVER_SOCKET;
 
+	private DataOutputStream outToClient;
+
 	private static final String CLIENTS_LIST = "clients.txt";
 
 	public ATMServer() throws IOException {
 
 		accounts = readAccounts(CLIENTS_LIST);
-
-		for (Account a : accounts) {
-			LOGGER.info(a.getAccountName());
-			LOGGER.info(a.getPin());
-			LOGGER.info(a.getCurrentBalance());
-			LOGGER.info(a.getAccountId().toString());
-		}
 
 		SERVER_SOCKET = new ServerSocket(6789);
 	}
@@ -49,31 +44,37 @@ public class ATMServer {
 
 			init();
 
-			Thread t = new Thread(() -> {
-
-				try {
-
-					while (true) {
-
-						String clientCommand = get();
-						parse(clientCommand);
-
-						//						Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
-						//						for (Thread t1 : threadSet) {
-						//
-						//							LOGGER.info(t1.getName() + " - " + t1.getId());
-						//						}
-						//						LOGGER.info("\n");
-					}
-
-				} catch (Exception ioe) {
-
-					LOGGER.error("Could not connect with new client", ioe);
-				}
-			});
-
-			// TODO: create a thread pool that dispatches the different client conenctions
-			t.start();
+			while (true) {
+				String clientCommand = get();
+				Commands c = Commands.valueOf(clientCommand);
+				parse(c);
+			}
+//			Thread t = new Thread(() -> {
+//
+//				try {
+//
+//					while (true) {
+//
+//						String clientCommand = get();
+//						Commands c = Commands.valueOf(clientCommand);
+//						parse(c);
+//
+//						//						Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+//						//						for (Thread t1 : threadSet) {
+//						//
+//						//							LOGGER.info(t1.getName() + " - " + t1.getId());
+//						//						}
+//						//						LOGGER.info("\n");
+//					}
+//
+//				} catch (Exception ioe) {
+//
+//					LOGGER.error("Could not connect with new client", ioe);
+//				}
+//			});
+//
+//			// TODO: create a thread pool that dispatches the different client conenctions
+//			t.start();
 		}
 	}
 
@@ -88,23 +89,20 @@ public class ATMServer {
 	}
 
 	public void send(String message) throws IOException {
+		outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
-		DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-
-		outToClient.writeBytes(message + "\n");
+		outToClient.writeBytes(message + '\n');
 	}
 
-	public void parse(String command) {
-
-		String[] messages = command.split(" ");
-		LOGGER.info(messages[0]);
-		Commands c = Commands.valueOf(messages[0]);
+	public void parse(Commands c) {
 
 		try {
 			switch (c) {
 				case START:
+					LOGGER.info("Started a connection with " + connectionSocket.getPort());
 					send("OK");
 				case CLOSE:
+					close();
 					break;
 				case AUTH:
 					auth();
@@ -113,10 +111,10 @@ public class ATMServer {
 					balance();
 					break;
 				case DEBIT:
-					debit(messages[1]);
+					debit();
 					break;
 				case CREDIT:
-					credit(messages[1]);
+					credit();
 					break;
 				case PING:
 					send("PONG");
@@ -129,13 +127,27 @@ public class ATMServer {
 		}
 	}
 
+	private void close() throws IOException {
+
+		for (Account a :  accounts) {
+
+			if (connectionSocket.getPort() == a.getPort()) {
+
+				accounts.remove(a);
+			}
+		}
+	}
+
 	private void auth() throws IOException {
 
-		Integer pin = Integer.parseInt(get());
+		send("OK");
+
+		// This get's the expected pin form the client
+		Integer receivedPin = Integer.parseInt(get());
 
 		for (Account a : accounts) {
 
-			if (pin.equals(a.getPin())) {
+			if (receivedPin.equals(a.getPin())) {
 
 				send("OK");
 
@@ -149,38 +161,49 @@ public class ATMServer {
 
 		Account a = getAccountByPort(connectionSocket.getPort());
 
-		send("OK\n" + a.getAccountName() + ", " + a.getAccountId() + ", " + a.getCurrentBalance() + " $");
+		send("OK");
+		send(a.getAccountName() + ", " + a.getAccountId() + ", " + a.getCurrentBalance() + " $");
 	}
 
-	private void debit(String amount) throws IOException {
-
-		Integer am = Integer.parseInt(amount);
+	private void debit() throws IOException {
 
 		Account a = getAccountByPort(connectionSocket.getPort());
 
+		send("OK");
+
+		// This get's the expected debit amount from the client
+		Integer am = Integer.parseInt(get());
+		String a1 = am.toString();
+
 		if (a.getCurrentBalance() < am) {
 
-			send("NOTOK\nAmount limited for withdraw!");
+			send("NOTOK");
+			send("Amount limited for withdraw!");
 		} else {
 
 			Integer diff = a.getCurrentBalance() - am;
 			a.setCurrentBalance(diff);
 
-			send("OK\n" + am + " $ were widraw.");
+			send("OK");
+			send("Widrawn " + a1 + "$");
 		}
 	}
 
-	private void credit(String amount) throws IOException {
-
-		Integer am = Integer.parseInt(amount);
+	private void credit() throws IOException {
 
 		Account a = getAccountByPort(connectionSocket.getPort());
+
+		send("OK");
+
+		// This get's the expected credit amount from the client
+		Integer am = Integer.parseInt(get());
 
 		Integer sum = a.getCurrentBalance() + am;
 
 		a.setCurrentBalance(sum);
 
-		send("OK\nAdded " + am + " $ to your account.");
+		send("OK");
+		send("Added " + am.toString() + "$");
 	}
 
 	private Account getAccountByPort(int port) {

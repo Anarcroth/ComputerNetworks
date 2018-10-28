@@ -23,6 +23,8 @@ class Client {
 
 	private DataOutputStream outToServer;
 
+	private BufferedReader inFromServer;
+
 	public Client() throws IOException {
 
 		input = new ArrayList<>();
@@ -90,6 +92,7 @@ class Client {
 					balance();
 					break;
 				case DEBIT:
+					debit();
 					break;
 				case CREDIT:
 					credit();
@@ -110,6 +113,11 @@ class Client {
 		LOGGER.info("Creating a connection to the server");
 
 		outToServer = new DataOutputStream(CLIENT_SOCKET.getOutputStream());
+
+		inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream()));
+
+		send("START");
+		get();
 	}
 
 	private void close() throws IOException {
@@ -144,12 +152,14 @@ class Client {
 		if (authorized) {
 
 			send("BALANCE");
-			String balanceAnswer = get();
+			if (get().equals("OK")) {
 
-			LOGGER.info("Your balance is " + balanceAnswer);
+				LOGGER.info(get());
+			}
 		} else {
 
-			getUserInput("Please enter your pin number and authorize first");
+			LOGGER.info("Please enter your pin number and authorize first");
+			auth();
 		}
 	}
 
@@ -157,9 +167,21 @@ class Client {
 
 		if (authorized) {
 
+			send("DEBIT");
+			if (get().equals("OK")) {
+				String debit = getUserInput("Enter debit amount: ");
+				send(debit);
+			}
+
+			LOGGER.info(get());
+			LOGGER.info(get());
+
+			// Tell the balance to the client
+			balance();
 		} else {
 
-			getUserInput("Please enter your pin number and authorize first");
+			LOGGER.info("Please enter your pin number and authorize first");
+			auth();
 		}
 	}
 
@@ -169,12 +191,12 @@ class Client {
 
 			send("CREDIT");
 			if (get().equals("OK")) {
-				String deposit = getUserInput("Enter the deposit amount: ");
-				send(deposit);
+				String credit = getUserInput("Enter the deposit amount: ");
+				send(credit);
 			}
-			String creditAnswer = get();
 
-			LOGGER.info("You deposited " + creditAnswer);
+			LOGGER.info(get());
+			LOGGER.info(get());
 
 			// Tell the balance to the client
 			balance();
@@ -197,7 +219,7 @@ class Client {
 
 	private String get() throws IOException {
 
-		String inFromServer = new BufferedReader(new InputStreamReader(CLIENT_SOCKET.getInputStream())).readLine();
+		String inFromServer = this.inFromServer.readLine();
 
 		LOGGER.info(inFromServer);
 
@@ -213,7 +235,7 @@ class Client {
 
 			Integer inputNumber = Integer.parseInt(input);
 
-			if (inputNumber >= 0 && inputNumber <= 5) {
+			if (inputNumber >= 0 && inputNumber <= 6) {
 
 				Commands c = Commands.getCommand(inputNumber);
 				parse(c);
@@ -242,9 +264,10 @@ class Client {
 		LOGGER.info("--- ATM Services ---");
 		LOGGER.info("1. Start");
 		LOGGER.info("2. Close");
-		LOGGER.info("3. Balance");
-		LOGGER.info("4. Deibt");
-		LOGGER.info("5. Credit");
+		LOGGER.info("3. Authenticate");
+		LOGGER.info("4. Balance");
+		LOGGER.info("5. Deibt");
+		LOGGER.info("6. Credit");
 		LOGGER.info("0. Ping");
 	}
 }
