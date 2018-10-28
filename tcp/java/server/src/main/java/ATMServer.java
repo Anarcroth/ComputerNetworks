@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
@@ -16,15 +18,15 @@ public class ATMServer {
 
 	private static final Logger LOGGER = Logger.getLogger(ATMServer.class);
 
+	private final ServerSocket SERVER_SOCKET;
+
+	private static final String CLIENTS_LIST = "clients.txt";
+
 	private Socket connectionSocket;
 
 	private ArrayList<Account> accounts;
 
-	private ServerSocket SERVER_SOCKET;
-
 	private DataOutputStream outToClient;
-
-	private static final String CLIENTS_LIST = "clients.txt";
 
 	public ATMServer() throws IOException {
 
@@ -42,39 +44,20 @@ public class ATMServer {
 
 		while (true) {
 
+			LOGGER.info("Starting ATM Server.");
 			init();
-
-			while (true) {
-				String clientCommand = get();
-				Commands c = Commands.valueOf(clientCommand);
-				parse(c);
-			}
-//			Thread t = new Thread(() -> {
-//
-//				try {
-//
-//					while (true) {
-//
-//						String clientCommand = get();
-//						Commands c = Commands.valueOf(clientCommand);
-//						parse(c);
-//
-//						//						Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
-//						//						for (Thread t1 : threadSet) {
-//						//
-//						//							LOGGER.info(t1.getName() + " - " + t1.getId());
-//						//						}
-//						//						LOGGER.info("\n");
-//					}
-//
-//				} catch (Exception ioe) {
-//
-//					LOGGER.error("Could not connect with new client", ioe);
-//				}
-//			});
-//
-//			// TODO: create a thread pool that dispatches the different client conenctions
-//			t.start();
+			ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+			executorService.submit(() -> {
+				try {
+					while (true) {
+						String clientCommand = get();
+						Commands c = Commands.valueOf(clientCommand);
+						parse(c);
+					}
+				} catch (Exception ioe) {
+					LOGGER.error("Could not connect with new client", ioe);
+				}
+			});
 		}
 	}
 
