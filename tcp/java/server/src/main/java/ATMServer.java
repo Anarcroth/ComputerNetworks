@@ -51,6 +51,8 @@ public class ATMServer {
 						Commands c = Commands.valueOf(clientCommand);
 						parse(c);
 					}
+				} catch (IllegalArgumentException iae) {
+					// Do nothing
 				} catch (Exception ioe) {
 					LOGGER.error("Could not connect with new client", ioe);
 				}

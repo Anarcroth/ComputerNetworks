@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Scanner;
 
-import jline.console.ConsoleReader;
 import org.apache.log4j.Logger;
 
 class Client {
@@ -219,13 +218,6 @@ class Client {
 	}
 
 	private void drawMenu() {
-
-		try {
-			ConsoleReader r = new ConsoleReader();
-			r.clearScreen();
-		} catch (IOException ioe) {
-			LOGGER.error("Could not initialize a console reader to clear screen. Your screen won't be cleared", ioe);
-		}
 
 		LOGGER.info("--- ATM Services ---");
 		LOGGER.info("1. Start");
