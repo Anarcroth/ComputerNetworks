@@ -1,10 +1,14 @@
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -18,11 +22,17 @@ public class ATMServer {
 
 	private ServerSocket SERVER_SOCKET;
 
+	private static final String CLIENTS_LIST = "clients.txt";
+
 	public ATMServer() throws IOException {
 
-		accounts = new ArrayList<>(5);
-		for (int i = 0; i < 5; i++) {
-			accounts.add(new Account());
+		accounts = readAccounts(CLIENTS_LIST);
+
+		for (Account a : accounts) {
+			LOGGER.info(a.getAccountName());
+			LOGGER.info(a.getPin());
+			LOGGER.info(a.getCurrentBalance());
+			LOGGER.info(a.getAccountId().toString());
 		}
 
 		SERVER_SOCKET = new ServerSocket(6789);
@@ -184,5 +194,24 @@ public class ATMServer {
 		}
 
 		return null;
+	}
+
+	private ArrayList<Account> readAccounts(String entity) throws IOException {
+
+		ArrayList<Account> list = new ArrayList<>();
+
+		File file = new File(entity);
+
+		try (Stream<String> stream = Files.lines(Paths.get(file.getAbsolutePath()))) {
+			stream.forEach(b -> {
+				String[] ac = b.split(" ");
+				String name = ac[0];
+				Integer pin = Integer.parseInt(ac[1]);
+				Integer balance = Integer.parseInt(ac[2]);
+				list.add(new Account(name, pin, balance));
+			});
+		}
+
+		return list;
 	}
 }

@@ -24,6 +24,7 @@ public class Account {
 		this.accountName = accountName;
 		this.currentBalance = currentBalance;
 
+		authorized = false;
 		accountId = UUID.randomUUID();
 	}
 
