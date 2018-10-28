@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import jline.console.ConsoleReader;
@@ -40,20 +39,20 @@ class Client {
 
 		drawMenu();
 
-		LOGGER.info("Enter a command: ");
+		LOGGER.info("Enter a command number: ");
 
 		String rawInput = UIN.nextLine();
 
-		checkUserInput(new ArrayList<>(Arrays.asList(rawInput.split(" "))));
+		checkUserInput(rawInput);
 	}
 
-	public void getUserInput(String message) {
+	public String getUserInput(String message) {
 
 		LOGGER.info(message);
 
 		String rawInput = UIN.nextLine();
 
-		checkUserInput(new ArrayList<>(Arrays.asList(rawInput.split(" "))));
+		return rawInput;
 	}
 
 	public ArrayList<String> getInput() {
@@ -72,7 +71,7 @@ class Client {
 		}
 	}
 
-	public void parse(Commands c, ArrayList<String> command) {
+	public void parse(Commands c) {
 
 		LOGGER.info("Parsing the command " + c);
 
@@ -85,7 +84,7 @@ class Client {
 					close();
 					break;
 				case AUTH:
-					auth(command.get(1));
+					auth();
 					break;
 				case BALANCE:
 					balance();
@@ -93,7 +92,7 @@ class Client {
 				case DEBIT:
 					break;
 				case CREDIT:
-					credit(command.get(1));
+					credit();
 					break;
 				case PING:
 					ping();
@@ -102,7 +101,7 @@ class Client {
 			}
 		} catch (IOException ioe) {
 
-			LOGGER.error("Could not execute command " + command, ioe);
+			LOGGER.error("Could not execute " + c, ioe);
 		}
 	}
 
@@ -117,14 +116,20 @@ class Client {
 
 		LOGGER.info("Closing the connection");
 
-		UIN.close();
+		send("CLOSE");
 
 		CLIENT_SOCKET.close();
+
+		System.exit(0);
 	}
 
-	private void auth(String pin) throws IOException {
+	private void auth() throws IOException {
 
-		send("AUTH " + pin);
+		send("AUTH");
+		get();
+		String pin = getUserInput("Enter your pin number: ");
+		send(pin);
+
 		if (get().equals("OK")) {
 
 			authorized = true;
@@ -158,14 +163,18 @@ class Client {
 		}
 	}
 
-	private void credit(String amount) throws IOException {
+	private void credit() throws IOException {
 
 		if (authorized) {
 
-			send("CREDIT " + amount);
+			send("CREDIT");
+			if (get().equals("OK")) {
+				String deposit = getUserInput("Enter the deposit amount: ");
+				send(deposit);
+			}
 			String creditAnswer = get();
 
-			LOGGER.info("You deposited " + amount);
+			LOGGER.info("You deposited " + creditAnswer);
 
 			// Tell the balance to the client
 			balance();
@@ -198,17 +207,21 @@ class Client {
 	// This is a very basic check for any user input if it's valid or not
 	// Since we don't care if the user passes any arguments to the possible commands (with the exception of AUTH),
 	// we just make sure that the first word of the whole line input is a valid command
-	private void checkUserInput(ArrayList<String> input) {
+	private void checkUserInput(String input) {
 
 		try {
 
-			Commands c = Commands.valueOf(input.get(0));
+			Integer inputNumber = Integer.parseInt(input);
 
-			parse(c, input);
+			if (inputNumber >= 0 && inputNumber <= 5) {
+
+				Commands c = Commands.getCommand(inputNumber);
+				parse(c);
+			}
 
 		} catch (IllegalArgumentException iae) {
 
-			LOGGER.error(input.get(0) + " is not a supported command");
+			LOGGER.error(input + " is not a supported command");
 
 			getUserInput();
 		}

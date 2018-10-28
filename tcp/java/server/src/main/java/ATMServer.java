@@ -92,12 +92,9 @@ public class ATMServer {
 
 		try {
 			switch (c) {
-				case PING:
-					send("pong");
-					break;
 				case START:
-				case CLOSE:
 					send("OK");
+				case CLOSE:
 					break;
 				case AUTH:
 					auth();
@@ -110,6 +107,9 @@ public class ATMServer {
 					break;
 				case CREDIT:
 					credit(messages[1]);
+					break;
+				case PING:
+					send("PONG");
 					break;
 				default:
 			}

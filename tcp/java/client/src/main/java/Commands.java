@@ -1,22 +1,24 @@
 public enum Commands {
 
-	START ("START"),
-	CLOSE ("CLOSE"),
-	AUTH ("AUTH"),
-	BALANCE ("BALANCE"),
-	CREDIT ("CREDIT"),
-	DEBIT ("DEBIT"),
-	PING ("PING");
+	START,
+	CLOSE,
+	AUTH,
+	BALANCE,
+	CREDIT,
+	DEBIT,
+	PING;
 
-	private final String state;
+	public static Commands getCommand(int index) {
 
-	private Commands(String s) {
-
-		state = s;
-	}
-
-	@Override
-	public String toString() {
-		return state;
+		switch (index) {
+			case 0: return PING;
+			case 1: return START;
+			case 2: return CLOSE;
+			case 3: return BALANCE;
+			case 4: return DEBIT;
+			case 5: return CREDIT;
+			default:
+				throw new IllegalArgumentException("There is not such command");
+		}
 	}
 }
