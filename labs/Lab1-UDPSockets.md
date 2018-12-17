@@ -7,6 +7,7 @@
 This programming exercise involves writing a client-server pair of networked applications, which are used for exchanging messages between each other. The functionality provided by the server is simply converting the letters in the *client’s* message to *upper-case*, returning the converted string back to the client. The client should be using the loopback address (`127.0.0.1`) to connect to the server, running on the same host.
 
 ## 1. Creating the Server
+
 Create a `C#` console app project named `UDPServer`.
 
 Include the `System`, `System.Net`, `System.Net.Sockets` and `System.Text` *namespaces*.

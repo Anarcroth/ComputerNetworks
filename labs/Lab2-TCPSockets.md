@@ -1,14 +1,14 @@
-# Lab 02 – TCP Socket Programming
+# Lab 02 - TCP Socket Programming
 
 > Assist. Prof. Vladimir Georgiev
 
-## Introduction
+# Introduction
 
 This programming exercise involves writing a *client* and a *server* programs that are going to communicate with each other over the network. The client will send simple expressions in the format `11 + 5 or 44 / 2` to the server, which will parse them, evaluate them and result a summary of the result in the format `11 + 5 = 16`. The two programs should make use of `TCP` sockets for the network communication. By using `TCP`, the server will be able to maintain different connections per each client that is currently connected to it. Therefore, in addition to evaluating the mathematical expressions, the server will also keep count of all errors (wrong requests) sent by each client, and will include that count in its log. The server can listen on any non-reserved port and the client can connect to the server on the loop back address `127.0.0.1`.
 
 ## 1. Creating the Server
 
-Create a C# console app project named `TCPServer`.
+Create a `C#` console app project named `TCPServer`.
 
 Include the `System`, `System.Net`, `System.Net.Sockets`, `System.Text`, `System.Text.RegularExpressions` and `System.Threading` *namespaces*.
 
@@ -161,7 +161,7 @@ Compile and run the server application. You should see the `Started listening…
 
 ## 2. Creating the Client
 
-Create a new C# console app project named `TCPClient`.
+Create a new `C#` console app project named `TCPClient`.
 
 Add two constant members that store the server’s IP address and port. Those will be used to uniquely identify and connect to the server’s socket:
 

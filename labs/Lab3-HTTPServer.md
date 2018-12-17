@@ -8,7 +8,7 @@ In this exercise you will create a *web server* that implements a simpler versio
 
 # 1. Creating the Server
 
-Create a C# console app project. Include the `System`, `System.IO`, `System.Net`, `System.Net.Sockets`, `System.Text`, `System.Text.RegularExpressions` and `System.Threading` *namespaces*.
+Create a `C#` console app project. Include the `System`, `System.IO`, `System.Net`, `System.Net.Sockets`, `System.Text`, `System.Text.RegularExpressions` and `System.Threading` *namespaces*.
 
 Add a private member in your main class for the port number which will be used by the server:
 
