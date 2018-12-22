@@ -1,5 +1,0 @@
-Martin 1234 200
-Ivan 2943 100
-Georgi 9872 500
-Stefan 1029 300
-Simeon 5239 600
