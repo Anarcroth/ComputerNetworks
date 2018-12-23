@@ -18,9 +18,11 @@ while True:
     data = connection.recv(BUFFER_SIZE).decode()
 
     if not data:
+        print("no more data")
         break
 
     print("received data:", data)
     connection.sendall(data.encode("utf-8"))
 
+print("closing")
 connection.close()
